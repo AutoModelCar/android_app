@@ -1,4 +1,4 @@
-package com.github.turtlebot.turtlebot_android.modelCar;
+package fub.modelCar;
 
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -11,7 +11,9 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 
 import com.github.rosjava.android_remocons.common_tools.apps.RosAppActivity;
-import com.github.turtlebot.turtlebot_android.modelCar.view.ViewPagerAdapter;
+import fub.modelCar.R;
+
+import fub.modelCar.view.ViewPagerAdapter;
 
 import org.ros.address.InetAddressFactory;
 import org.ros.android.MessageCallable;
@@ -32,7 +34,7 @@ import sensor_msgs.CompressedImage;
 public class ModelCarActivity extends RosAppActivity implements NodeMain {
 
     private RelativeLayout layoutControl;
-    Publisher<std_msgs.Int16> speed_pub;
+    Publisher<std_msgs.Int32> speed_pub;
     Publisher<std_msgs.Int16> steering_pub;
     Publisher<std_msgs.Int16> stop_pub;
     Publisher<std_msgs.String> blinker_light_pub;
@@ -131,13 +133,13 @@ public class ModelCarActivity extends RosAppActivity implements NodeMain {
     }
 
 
-    public void callPublishSpeed(short mode) {
+    public void callPublishSpeed(int mode) {
         if (node == null) {
             Log.e("ModelCarActivity", "Still doesn't have a connected node");
             return;
         }
 
-        std_msgs.Int16 gas = speed_pub.newMessage();
+        std_msgs.Int32 gas = speed_pub.newMessage();
         gas.setData(mode);
         speed_pub.publish(gas);
     }
@@ -207,13 +209,13 @@ public class ModelCarActivity extends RosAppActivity implements NodeMain {
             }
         });
 
-        speed_pub = node.newPublisher("/manual_control/speed", std_msgs.Int16._TYPE);
+        speed_pub = node.newPublisher("/manual_control/speed", std_msgs.Int32._TYPE);
         steering_pub = node.newPublisher("/manual_control/steering", std_msgs.Int16._TYPE);
         stop_pub = node.newPublisher("/manual_control/stop_start", std_msgs.Int16._TYPE);
         blinker_light_pub = node.newPublisher("/manual_control/lights", std_msgs.String._TYPE);
 
         SeekBar speedBar1 = (SeekBar) findViewById(R.id.seekBar_speed);
-        speedBar1.setProgress(1000);
+        //speedBar1.setProgress(0);
     }
 
     @Override

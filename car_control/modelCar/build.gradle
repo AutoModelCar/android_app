@@ -37,7 +37,7 @@ android {
   }
   productFlavors {
     indigo {
-      applicationId "com.github.autoauto.car_control.modelCar.indigo"
+      applicationId "fub.modelCar.indigo"
     }
   }
 }

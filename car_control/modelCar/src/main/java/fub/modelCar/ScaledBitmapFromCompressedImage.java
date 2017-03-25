@@ -1,4 +1,4 @@
-package com.github.turtlebot.turtlebot_android.modelCar;
+package fub.modelCar;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.ros.android.BitmapFromCompressedImage;

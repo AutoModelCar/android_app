@@ -1,4 +1,4 @@
-package com.github.turtlebot.turtlebot_android.modelCar.view;
+package fub.modelCar.view;
 
 import android.app.Fragment;
 import android.content.res.Configuration;
@@ -14,8 +14,8 @@ import android.widget.SeekBar;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.github.turtlebot.turtlebot_android.modelCar.ModelCarActivity;
-import com.github.turtlebot.turtlebot_android.modelCar.R;
+import fub.modelCar.ModelCarActivity;
+import fub.modelCar.R;
 
 /**
  * Created by Daniel Neumann on 29.03.16.
@@ -125,7 +125,7 @@ public class ControlFragment extends Fragment {
                 modelCarActivity.callPublishStopStart(emergency_stop_mode);
                 emergency_stopButton.setImageResource(R.drawable.emergency_stop_active);
                 SeekBar speedBar1 = (SeekBar) getView().findViewById(R.id.seekBar_speed);
-                speedBar1.setProgress(1000);
+                speedBar1.setProgress(200);
 
                 blinker_not_publishing = true;
                 ToggleButton toggleButtonBlinkLeft = (ToggleButton) getView().findViewById(R.id.toggleButtonBlinkL);
@@ -201,17 +201,17 @@ public class ControlFragment extends Fragment {
 
 
     private final SeekBar.OnSeekBarChangeListener speedBarListener = new SeekBar.OnSeekBarChangeListener() {
-        short lastProgress = 0;
+        int lastProgress = 0;
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
-            lastProgress = (short) (seekBar.getMax() / 2 - progress);
-            modelCarActivity.callPublishSpeed(lastProgress);
+            lastProgress = (-200 + progress);
+            //modelCarActivity.callPublishSpeed(-lastProgress);
             if (lastToast == null)
-                lastToast = Toast.makeText(modelCarActivity.getBaseContext(), -lastProgress + " rpm", Toast.LENGTH_SHORT);
+                lastToast = Toast.makeText(modelCarActivity.getBaseContext(), lastProgress + "", Toast.LENGTH_SHORT);
             else
-                lastToast.setText(-lastProgress + " rpm");
+                lastToast.setText(lastProgress + "");
 
             lastToast.show();
         }
@@ -222,7 +222,7 @@ public class ControlFragment extends Fragment {
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            modelCarActivity.callPublishSpeed(lastProgress);
+            modelCarActivity.callPublishSpeed(-lastProgress);
         }
     };
 
@@ -233,13 +233,13 @@ public class ControlFragment extends Fragment {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
-            lastProgress = (short) (seekBar.getMax() / 2 - progress);
-            angle = (short) (((seekBar.getMax() - progress) / 5) * 9);
-            modelCarActivity.callPublishSteering(angle);
+            lastProgress = (short) (2000 - progress);
+            angle = (short) ((50.0 * ( 1.0 * progress / seekBar.getMax())) - 25.0); // angle between -25 and 25 degree
+            //modelCarActivity.callPublishSteering(lastProgress);
             if (lastToast == null)
-                lastToast = Toast.makeText(modelCarActivity.getBaseContext(), lastProgress + " deg", Toast.LENGTH_SHORT);
+                lastToast = Toast.makeText(modelCarActivity.getBaseContext(), angle + "°", Toast.LENGTH_SHORT);
             else
-                lastToast.setText(lastProgress + " deg");
+                lastToast.setText(angle + "°");
 
             lastToast.show();
         }
@@ -250,6 +250,7 @@ public class ControlFragment extends Fragment {
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
+            modelCarActivity.callPublishSteering(lastProgress);
         }
     };
 
