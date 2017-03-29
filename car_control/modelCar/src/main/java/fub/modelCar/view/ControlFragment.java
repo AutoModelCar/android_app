@@ -125,7 +125,7 @@ public class ControlFragment extends Fragment {
                 modelCarActivity.callPublishStopStart(emergency_stop_mode);
                 emergency_stopButton.setImageResource(R.drawable.emergency_stop_active);
                 SeekBar speedBar1 = (SeekBar) getView().findViewById(R.id.seekBar_speed);
-                speedBar1.setProgress(200);
+                speedBar1.setProgress(5000);
 
                 blinker_not_publishing = true;
                 ToggleButton toggleButtonBlinkLeft = (ToggleButton) getView().findViewById(R.id.toggleButtonBlinkL);
@@ -206,12 +206,12 @@ public class ControlFragment extends Fragment {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
-            lastProgress = (-200 + progress);
+            lastProgress = (-5000 + progress);
             //modelCarActivity.callPublishSpeed(-lastProgress);
             if (lastToast == null)
-                lastToast = Toast.makeText(modelCarActivity.getBaseContext(), lastProgress + "", Toast.LENGTH_SHORT);
+                lastToast = Toast.makeText(modelCarActivity.getBaseContext(), lastProgress + " rpm", Toast.LENGTH_SHORT);
             else
-                lastToast.setText(lastProgress + "");
+                lastToast.setText(lastProgress + " rpm");
 
             lastToast.show();
         }
