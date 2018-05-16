@@ -18,6 +18,8 @@ import com.github.turtlebot.turtlebot_android.modelCar.ModelCarActivity;
 import com.github.turtlebot.turtlebot_android.modelCar.R;
 
 /**
+ * Fragment to control the buttons and sliders
+ *
  * Created by Daniel Neumann on 29.03.16.
  */
 public class ControlFragment extends Fragment {
@@ -28,22 +30,21 @@ public class ControlFragment extends Fragment {
     private short emergency_stop_mode = 0;
 
     boolean blinker_not_publishing = false;
-    final String BLINKER_LEFT = "le";
-    final String BLINKER_RIGHT = "ri";
-    final String BLINKER_OFF = "diL";
-    final String BLINKER_STOP = "stop";
+    final String BLINKER_LEFT = "Lle";
+    final String BLINKER_RIGHT = "Lri";
+    final String BLINKER_OFF = "LdiL";
+    final String BLINKER_STOP = "Lstop";
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.main, container, false);
-        return v;
+        return inflater.inflate(R.layout.main, container, false);
     }
 
     @Override
     public void onStart() {
         super.onStart();
 
-        buildView(false);
+        buildView();
 
         modelCarActivity = (ModelCarActivity) getActivity();
         modelCarActivity.setLayoutControl(layout1);
@@ -51,50 +52,41 @@ public class ControlFragment extends Fragment {
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        // TODO this is not called now, so we cannot flip the screen
         super.onConfigurationChanged(newConfig);
-
-        buildView(true);
+        buildView();
     }
 
-    private void buildView(boolean rebuild) {
-        SeekBar prevSpeedBar = null;
-        SeekBar prevSteeringBar = null;
+    private void buildView() {
+        if (getView() != null) {
+            ImageButton stopButton = getView().findViewById(R.id.button_stop);
+            if (stopButton != null) {
+                stopButton.setOnClickListener(stopButtonListener);
+            }
 
-        if (rebuild) {
-            // If we are rebuilding GUI (probably because the screen was rotated) we must save widgets'
-            // previous content, as setContentView will destroy and replace them with new instances
-            prevSpeedBar = (SeekBar) getView().findViewById(R.id.seekBar_speed);
-            prevSteeringBar = (SeekBar) getView().findViewById(R.id.seekBar_steering);
+            SeekBar speedBar = getView().findViewById(R.id.seekBar_speed);
+            if (speedBar != null) {
+                speedBar.setOnSeekBarChangeListener(speedBarListener);
+            }
+
+            SeekBar steeringBar = getView().findViewById(R.id.seekBar_steering);
+            if (steeringBar != null) {
+                steeringBar.setOnSeekBarChangeListener(steeringBarListener);
+            }
+
+            ToggleButton toggleButtonBlinkLeft = getView().findViewById(R.id.toggleButtonBlinkL);
+            if (toggleButtonBlinkLeft != null) {
+                toggleButtonBlinkLeft.setOnCheckedChangeListener(toggleButtonBlinkLeftListener);
+            }
+
+
+            ToggleButton toggleButtonBlinkRight = getView().findViewById(R.id.toggleButtonBlinkR);
+            if (toggleButtonBlinkRight != null) {
+                toggleButtonBlinkRight.setOnCheckedChangeListener(toggleButtonBlinkRightListener);
+            }
+
+            // Take a reference to the image view to show incoming panoramic pictures
+            layout1 = getView().findViewById(R.id.main_inner);
         }
-
-        ImageButton stopButton = (ImageButton) getView().findViewById(R.id.button_stop);
-        stopButton.setOnClickListener(stopButtonListener);
-
-        SeekBar speedBar = (SeekBar) getView().findViewById(R.id.seekBar_speed);
-        speedBar.setOnSeekBarChangeListener(speedBarListener);
-        if (rebuild)
-            speedBar.setProgress(prevSpeedBar.getProgress());
-
-        SeekBar steeringBar = (SeekBar) getView().findViewById(R.id.seekBar_steering);
-        steeringBar.setOnSeekBarChangeListener(steeringBarListener);
-        if (rebuild)
-            steeringBar.setProgress(prevSteeringBar.getProgress());
-
-
-        ToggleButton toggleButtonBlinkLeft = (ToggleButton) getView().findViewById(R.id.toggleButtonBlinkL);
-        toggleButtonBlinkLeft.setOnCheckedChangeListener(toggleButtonBlinkLeftListener);
-
-        ToggleButton toggleButtonBlinkRight = (ToggleButton) getView().findViewById(R.id.toggleButtonBlinkR);
-        toggleButtonBlinkRight.setOnCheckedChangeListener(toggleButtonBlinkRightListener);
-
-        // Take a reference to the image view to show incoming panoramic pictures
-        layout1 = (RelativeLayout) getView().findViewById(R.id.main_inner);
-
-        if (rebuild) {
-            layout1.setBackground(null);
-        }
-
     }
 
     /************************************************************
@@ -106,35 +98,39 @@ public class ControlFragment extends Fragment {
         @Override
         public void onClick(View v) {
 
-            ImageButton emergency_stopButton = (ImageButton) getView().findViewById(R.id.button_stop);
-            if (emergency_stop_mode == 1) {
-                emergency_stop_mode = 0;
-                modelCarActivity.callPublishStopStart(emergency_stop_mode);
-                emergency_stopButton.setImageResource(R.drawable.emergency_stop_inactive);
+            if (getView() != null) {
+                ImageButton emergency_stopButton = getView().findViewById(R.id.button_stop);
+                if (emergency_stopButton != null) {
+                    if (emergency_stop_mode == 1) {
+                        emergency_stop_mode = 0;
+                        modelCarActivity.callPublishStopStart(emergency_stop_mode);
+                        emergency_stopButton.setImageResource(R.drawable.emergency_stop_inactive);
 
-                blinker_not_publishing = true;
-                ToggleButton toggleButtonBlinkLeft = (ToggleButton) getView().findViewById(R.id.toggleButtonBlinkL);
-                toggleButtonBlinkLeft.setChecked(false);
-                blinker_not_publishing = true;
-                ToggleButton toggleButtonBlinkRight = (ToggleButton) getView().findViewById(R.id.toggleButtonBlinkR);
-                toggleButtonBlinkRight.setChecked(false);
-                modelCarActivity.callPublishBlinkerLight(BLINKER_OFF);
+                        blinker_not_publishing = true;
+                        ToggleButton toggleButtonBlinkLeft = getView().findViewById(R.id.toggleButtonBlinkL);
+                        toggleButtonBlinkLeft.setChecked(false);
+                        blinker_not_publishing = true;
+                        ToggleButton toggleButtonBlinkRight = getView().findViewById(R.id.toggleButtonBlinkR);
+                        toggleButtonBlinkRight.setChecked(false);
+                        modelCarActivity.callPublishBlinkerLight(BLINKER_OFF);
 
-            } else {
-                emergency_stop_mode = 1;
-                modelCarActivity.callPublishStopStart(emergency_stop_mode);
-                emergency_stopButton.setImageResource(R.drawable.emergency_stop_active);
-                SeekBar speedBar1 = (SeekBar) getView().findViewById(R.id.seekBar_speed);
-                speedBar1.setProgress(1000);
+                    } else {
+                        emergency_stop_mode = 1;
+                        modelCarActivity.callPublishStopStart(emergency_stop_mode);
+                        emergency_stopButton.setImageResource(R.drawable.emergency_stop_active);
+                        SeekBar speedBar1 = getView().findViewById(R.id.seekBar_speed);
+                        speedBar1.setProgress(1000);
 
-                blinker_not_publishing = true;
-                ToggleButton toggleButtonBlinkLeft = (ToggleButton) getView().findViewById(R.id.toggleButtonBlinkL);
-                toggleButtonBlinkLeft.setChecked(false);
-                blinker_not_publishing = true;
-                ToggleButton toggleButtonBlinkRight = (ToggleButton) getView().findViewById(R.id.toggleButtonBlinkR);
-                toggleButtonBlinkRight.setChecked(false);
-                modelCarActivity.callPublishBlinkerLight(BLINKER_STOP);
+                        blinker_not_publishing = true;
+                        ToggleButton toggleButtonBlinkLeft = getView().findViewById(R.id.toggleButtonBlinkL);
+                        toggleButtonBlinkLeft.setChecked(false);
+                        blinker_not_publishing = true;
+                        ToggleButton toggleButtonBlinkRight = getView().findViewById(R.id.toggleButtonBlinkR);
+                        toggleButtonBlinkRight.setChecked(false);
+                        modelCarActivity.callPublishBlinkerLight(BLINKER_STOP);
 
+                    }
+                }
             }
         }
 
@@ -145,24 +141,28 @@ public class ControlFragment extends Fragment {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-            if(isChecked) {
+            if (isChecked) {
                 modelCarActivity.callPublishBlinkerLight(BLINKER_LEFT);
 
                 buttonView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.turnleft_active, 0, 0, 0);
 
                 blinker_not_publishing = true;
-                ToggleButton toggleButtonBlinkRight = (ToggleButton) getView().findViewById(R.id.toggleButtonBlinkR);
-                toggleButtonBlinkRight.setChecked(false);
+                if (getView() != null) {
+                    ToggleButton toggleButtonBlinkRight = getView().findViewById(R.id.toggleButtonBlinkR);
+                    if (toggleButtonBlinkRight != null) {
+                        toggleButtonBlinkRight.setChecked(false);
+                    }
+                }
 
-            } else if(!blinker_not_publishing) {
+            } else if (!blinker_not_publishing) {
                 modelCarActivity.callPublishBlinkerLight(BLINKER_OFF);
             }
 
-            if(!isChecked) {
+            if (!isChecked) {
                 buttonView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.turnleft_inactive, 0, 0, 0);
             }
 
-            if(blinker_not_publishing) {
+            if (blinker_not_publishing) {
                 blinker_not_publishing = false;
             }
 
@@ -175,30 +175,33 @@ public class ControlFragment extends Fragment {
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
 
-            if(isChecked) {
+            if (isChecked) {
                 modelCarActivity.callPublishBlinkerLight(BLINKER_RIGHT);
 
-                buttonView.setCompoundDrawablesWithIntrinsicBounds(0, 0,R.drawable.turnright_active, 0);
+                buttonView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.turnright_active, 0);
 
                 blinker_not_publishing = true;
-                ToggleButton toggleButtonBlinkLeft = (ToggleButton) getView().findViewById(R.id.toggleButtonBlinkL);
-                toggleButtonBlinkLeft.setChecked(false);
+                if (getView() != null) {
+                    ToggleButton toggleButtonBlinkLeft = getView().findViewById(R.id.toggleButtonBlinkL);
+                    if (toggleButtonBlinkLeft != null) {
+                        toggleButtonBlinkLeft.setChecked(false);
+                    }
+                }
 
-            } else if(!blinker_not_publishing) {
+            } else if (!blinker_not_publishing) {
                 modelCarActivity.callPublishBlinkerLight(BLINKER_OFF);
             }
 
-            if(!isChecked) {
-                buttonView.setCompoundDrawablesWithIntrinsicBounds(0, 0,R.drawable.turnright_inactive, 0);
+            if (!isChecked) {
+                buttonView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.turnright_inactive, 0);
             }
 
-            if(blinker_not_publishing) {
+            if (blinker_not_publishing) {
                 blinker_not_publishing = false;
             }
 
         }
     };
-
 
     private final SeekBar.OnSeekBarChangeListener speedBarListener = new SeekBar.OnSeekBarChangeListener() {
         short lastProgress = 0;
@@ -206,12 +209,12 @@ public class ControlFragment extends Fragment {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
-            lastProgress = (short) (seekBar.getMax() / 2 - progress);
+            lastProgress = (short) (progress - (seekBar.getMax() / 2));
             modelCarActivity.callPublishSpeed(lastProgress);
             if (lastToast == null)
-                lastToast = Toast.makeText(modelCarActivity.getBaseContext(), -lastProgress + " rpm", Toast.LENGTH_SHORT);
+                lastToast = Toast.makeText(modelCarActivity.getBaseContext(), lastProgress + " rpm", Toast.LENGTH_SHORT);
             else
-                lastToast.setText(-lastProgress + " rpm");
+                lastToast.setText(lastProgress + " rpm");
 
             lastToast.show();
         }
@@ -227,19 +230,19 @@ public class ControlFragment extends Fragment {
     };
 
     private final SeekBar.OnSeekBarChangeListener steeringBarListener = new SeekBar.OnSeekBarChangeListener() {
-        short lastProgress = 50;
+        short lastProgress = 30;
         short angle = 0;
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
-            lastProgress = (short) (seekBar.getMax() / 2 - progress);
-            angle = (short) (((seekBar.getMax() - progress) / 5) * 9);
+            lastProgress = (short) (progress - seekBar.getMax() / 2);
+            angle = (short) (((seekBar.getMax() - progress) / 60.0) * 180);
             modelCarActivity.callPublishSteering(angle);
             if (lastToast == null)
-                lastToast = Toast.makeText(modelCarActivity.getBaseContext(), lastProgress + " deg", Toast.LENGTH_SHORT);
+                lastToast = Toast.makeText(modelCarActivity.getBaseContext(), lastProgress + " °", Toast.LENGTH_SHORT);
             else
-                lastToast.setText(lastProgress + " deg");
+                lastToast.setText(lastProgress + " °");
 
             lastToast.show();
         }

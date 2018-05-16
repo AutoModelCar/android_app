@@ -33,33 +33,20 @@ public class ModelCarActivity extends RosAppActivity implements NodeMain {
 
     private RelativeLayout layoutControl;
     Publisher<std_msgs.Int16> speed_pub;
-    Publisher<std_msgs.Int16> steering_pub;
-    Publisher<std_msgs.Int16> stop_pub;
+    Publisher<std_msgs.UInt8> steering_pub;
     Publisher<std_msgs.String> blinker_light_pub;
-
-    /**
-     * The pager widget, which handles animation and allows swiping horizontally to access previous
-     * and next wizard steps.
-     */
-    private ViewPager mPager;
-
-    /**
-     * The pager adapter, which provides the pages to the view pager widget.
-     */
-    private ViewPagerAdapter mPagerAdapter;
 
     private ConnectedNode node;
     private final MessageCallable<Bitmap, sensor_msgs.CompressedImage> callable = new ScaledBitmapFromCompressedImage(2);
-    private short stop = 1;
 
     public ModelCarActivity() {
         super("ModelCarActivity", "ModelCarActivity");
     }
 
-    /************************************************************
-     Android code:
-     Activity life cycle and GUI management
-     ************************************************************/
+    //----------------------------------------------------------
+    //Android code:
+    //Activity life cycle and GUI management
+    //----------------------------------------------------------
 
     /**
      * Called when the activity is first created.
@@ -76,15 +63,12 @@ public class ModelCarActivity extends RosAppActivity implements NodeMain {
         setContentView(R.layout.sliding_layout);
 
         // Instantiate a ViewPager and a PagerAdapter.
-        mPager = (ViewPager) findViewById(R.id.pager);
-        mPagerAdapter = new ViewPagerAdapter(getFragmentManager());
+        ViewPager mPager = findViewById(R.id.pager);
+        ViewPagerAdapter mPagerAdapter = new ViewPagerAdapter(getFragmentManager());
         mPager.setAdapter(mPagerAdapter);
 
-        // TODO Tricky solution to the StrictMode; the recommended way is by using AsyncTask
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
     }
 
@@ -148,8 +132,8 @@ public class ModelCarActivity extends RosAppActivity implements NodeMain {
             return;
         }
 
-        std_msgs.Int16 steering = steering_pub.newMessage();
-        steering.setData(mode);
+        std_msgs.UInt8 steering = steering_pub.newMessage();
+        steering.setData((byte)mode);
         steering_pub.publish(steering);
     }
 
@@ -159,9 +143,11 @@ public class ModelCarActivity extends RosAppActivity implements NodeMain {
             return;
         }
 
-        std_msgs.Int16 stop_msg = stop_pub.newMessage();
-        stop_msg.setData(mode);
-        stop_pub.publish(stop_msg);
+        if(mode == 0) {
+            std_msgs.Int16 stop_msg = speed_pub.newMessage();
+            stop_msg.setData(mode);
+            speed_pub.publish(stop_msg);
+        }
     }
 
     public void callPublishBlinkerLight(String mode) {
@@ -208,11 +194,10 @@ public class ModelCarActivity extends RosAppActivity implements NodeMain {
         });
 
         speed_pub = node.newPublisher("/manual_control/speed", std_msgs.Int16._TYPE);
-        steering_pub = node.newPublisher("/manual_control/steering", std_msgs.Int16._TYPE);
-        stop_pub = node.newPublisher("/manual_control/stop_start", std_msgs.Int16._TYPE);
-        blinker_light_pub = node.newPublisher("/manual_control/lights", std_msgs.String._TYPE);
+        steering_pub = node.newPublisher("/steering", std_msgs.UInt8._TYPE);
+        blinker_light_pub = node.newPublisher("/led", std_msgs.String._TYPE);
 
-        SeekBar speedBar1 = (SeekBar) findViewById(R.id.seekBar_speed);
+        SeekBar speedBar1 = findViewById(R.id.seekBar_speed);
         speedBar1.setProgress(1000);
     }
 
@@ -224,7 +209,7 @@ public class ModelCarActivity extends RosAppActivity implements NodeMain {
     @Override
     public void onShutdown(Node n) {
         Log.d("ModelCarActivity", n.getName() + " node shuting down...");
-        callPublishStopStart(stop);//emergency stop active
+        callPublishStopStart((short)1);//emergency stop active
     }
 
     @Override

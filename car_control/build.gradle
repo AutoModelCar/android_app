@@ -13,12 +13,15 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-apply from: "https://github.com/rosjava/rosjava_bootstrap/raw/indigo/gradle.gradle"
+apply from: "https://github.com/rosjava/rosjava_bootstrap/raw/kinetic/gradle.gradle"
 
 buildscript {
-    apply from: "https://github.com/rosjava/android_core/raw/indigo/buildscript.gradle"
+    apply from: "https://github.com/rosjava/android_core/raw/kinetic/buildscript.gradle"
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath "com.android.tools.build:gradle:2.3.3"
+    }
+    repositories {
+        google()
     }
 }
 
@@ -42,6 +45,5 @@ subprojects {
         }
     }
 }
-
 
 defaultTasks 'wrapper','assembleRelease'

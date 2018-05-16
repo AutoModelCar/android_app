@@ -31,11 +31,11 @@
 
                 <ImageButton
                     android:id="@+id/button_stop"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginStart="10dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="6dp"
                     android:background="@android:color/transparent"
                     android:contentDescription="@string/emergency_stop"
                     android:gravity="start"
@@ -68,7 +68,7 @@
             <SeekBar
                 android:id="@+id/seekBar_speed"
                 android:layout_width="300dp"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:layout_gravity="right"
                 android:layout_marginRight="-100dp"
                 android:layout_marginTop="60dp"
@@ -95,11 +95,11 @@
                 <SeekBar
                     android:id="@+id/seekBar_steering"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:layout_weight="0.4"
-                    android:max="100"
-                    android:progress="50"
+                    android:layout_height="60dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_weight="0.3"
+                    android:max="60"
+                    android:progress="30"
                     android:text="@string/steering"
                     android:progressDrawable="@drawable/apptheme_scrubber_progress_horizontal_holo_light"
                     android:thumb="@drawable/apptheme_scrubber_control_normal_holo" />
